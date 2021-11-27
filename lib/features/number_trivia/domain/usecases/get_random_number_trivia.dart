@@ -15,8 +15,3 @@ class GetRandomNumberTrivia extends UseCase<NumberTrivia, NoParams> {
     return await repository.getRandomNumberTrivia();
   }
 }
-
-class NoParams extends Equatable {
-  @override
-  List<Object?> get props => [];
-}

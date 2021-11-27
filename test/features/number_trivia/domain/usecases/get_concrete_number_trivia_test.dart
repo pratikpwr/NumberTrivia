@@ -35,6 +35,7 @@ void main() {
 
     //assert
     expect(result, const Right(tNumberTrivia));
+    // below verifies that given parameter has been called
     verify(mockNumberTriviaRepository.getConcreteNumberTrivia(tNumber));
     verifyNoMoreInteractions(mockNumberTriviaRepository);
   });
