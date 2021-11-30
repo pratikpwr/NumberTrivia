@@ -35,8 +35,11 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
     GetTriviaForConcreteNumber event,
     Emitter<NumberTriviaState> emit,
   ) {
+    if (event.numberString == null) {
+      emit(const Error(message: invalidInput));
+    }
     final inputEither =
-        inputConvertor.stringToUnsignedInteger(event.numberString);
+        inputConvertor.stringToUnsignedInteger(event.numberString!);
 
     inputEither.fold(
       (failure) => emit(const Error(message: invalidInput)),
