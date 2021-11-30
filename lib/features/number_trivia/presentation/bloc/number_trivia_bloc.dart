@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:numtrivia/core/errors/failures.dart';
+import 'package:numtrivia/core/usecases/usecase.dart';
 import 'package:numtrivia/core/utils/input_convertor.dart';
 
 import 'package:numtrivia/features/number_trivia/domain/entities/number_trivia.dart';
@@ -38,12 +40,41 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
 
     inputEither.fold(
       (failure) => emit(const Error(message: invalidInput)),
-      (integer) => throw UnimplementedError(),
+      (integer) async {
+        emit(Loading());
+
+        final failureOrTrivia = await concreteNT(Params(number: integer));
+
+        failureOrTrivia.fold(
+          (failure) => emit(Error(message: _mapFailureToMessage(failure))),
+          (trivia) => emit(Success(trivia: trivia)),
+        );
+      },
     );
   }
 
   void _onGetTriviaForRandomNumber(
     GetTriviaForRandomNumber event,
     Emitter<NumberTriviaState> emit,
-  ) async {}
+  ) async {
+    emit(Loading());
+
+    final failureOrTrivia = await randomNT(NoParams());
+
+    failureOrTrivia.fold(
+      (failure) => emit(Error(message: _mapFailureToMessage(failure))),
+      (trivia) => emit(Success(trivia: trivia)),
+    );
+  }
+
+  String _mapFailureToMessage(Failure failure) {
+    switch (failure.runtimeType) {
+      case ServerFailure:
+        return serverFailure;
+      case CacheFailure:
+        return cacheFailure;
+      default:
+        return 'Unexpected Error';
+    }
+  }
 }
